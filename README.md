@@ -88,10 +88,6 @@ interface.launch()
   ![Alt Text](images/dur.png)
 - Click "Submit" to generate and view the video.
 
-### 7. Output
-
-[Watch the video](https://RAKSHASRIA.github.io/Diffuser_model/demo.mp4)
-
 ## Notes
 - Ensure sufficient GPU resources are available when running the model.
 - Video generation time depends on the complexity of the prompt and the duration.
