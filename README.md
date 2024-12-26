@@ -90,11 +90,7 @@ interface.launch()
 
 ### 7. Output
 
-<video width="320" height="240" controls>
-  <source src="path/to/demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
+[Watch the video](https://username.github.io/repository-name/video.mp4)
 
 ## Notes
 - Ensure sufficient GPU resources are available when running the model.
