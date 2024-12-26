@@ -1,0 +1,20 @@
+# For Diffusers (Hugging Face library for text-to-image and text-to-video models)
+diffusers==0.18.0
+
+# For Hugging Face API (if you need to access models via Hugging Face)
+transformers==4.33.0
+
+# For image manipulation and video creation
+Pillow==9.2.0
+imageio==2.31.1
+imageio[ffmpeg]==2.31.1  # For video export support
+
+# For numerical operations on arrays (needed for handling frames)
+numpy==1.24.0
+
+# Optional: For logging, debugging, and performance monitoring
+loguru==0.6.0
+
+# Optional: For GPU support if using accelerated hardware (like CUDA for TensorFlow/PyTorch)
+torch==2.1.0  # or the appropriate version for your system
+tensorflow==2.14.0  # Optional if you need TensorFlow support
