@@ -90,7 +90,7 @@ interface.launch()
 
 ### 7. Output
 
-[Watch the video](https://username.github.io/repository-name/video.mp4)
+[Watch the video](https://RAKSHASRIA.github.io/Diffuser_model/demo.mp4)
 
 ## Notes
 - Ensure sufficient GPU resources are available when running the model.
