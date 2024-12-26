@@ -81,6 +81,7 @@ interface.launch()
 
 ### 6. Interact with the UI
 - Open the Gradio link generated in the last step.
+  ![Alt Text](URL_or_relative_path_to_image)
 - Enter your text prompt (e.g., "A girl swinging in a swing in a blossom tree").
 - Adjust the video duration slider as needed.
 - Click "Submit" to generate and view the video.
