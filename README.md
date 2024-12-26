@@ -1,6 +1,6 @@
-### MotionPitcher-Diffuser_model
+# MotionPitcher-Diffuser_model
 
-# Text-to-Video Diffusion Model with Gradio UI
+## Text-to-Video Diffusion Model with Gradio UI
 
 ## Overview
 This project uses a diffusion model to generate videos from text prompts. It integrates a basic user interface (UI) using **Gradio** to allow users to input text prompts and generate videos interactively.
