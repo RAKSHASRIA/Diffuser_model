@@ -81,12 +81,20 @@ interface.launch()
 
 ### 6. Interact with the UI
 - Open the Gradio link generated in the last step.
-  ![Alt Text](images/prom.png)
+  ![Alt Text](images/open.png)
 - Enter your text prompt (e.g., "A girl swinging in a swing in a blossom tree").
   ![Alt Text](images/prom.png)
 - Adjust the video duration slider as needed.
   ![Alt Text](images/dur.png)
 - Click "Submit" to generate and view the video.
+
+### 7. Output
+
+<video width="320" height="240" controls>
+  <source src="path/to/demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 
 ## Notes
 - Ensure sufficient GPU resources are available when running the model.
