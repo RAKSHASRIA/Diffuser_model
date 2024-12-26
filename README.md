@@ -1,124 +1,104 @@
-# Text-to-Video with Diffusers
+# Text-to-Video Diffusion Model with Gradio UI
 
-This project uses Hugging Face's **Diffusers** library to generate video from text prompts. By providing a text description, the model generates a sequence of frames, which are then compiled into a video. The system leverages **Stable Diffusion** and other diffusion models to create realistic video content based on your text inputs.
+## Overview
+This project uses a diffusion model to generate videos from text prompts. It integrates a basic user interface (UI) using **Gradio** to allow users to input text prompts and generate videos interactively.
 
 ## Features
-- 🎬 **Text-to-Video Generation**: Generate videos from text prompts.
-- 🖼️ **High-Quality Frames**: Each frame is generated using a powerful diffusion model.
-- 🎥 **Export to Video**: Frames are compiled into a video file.
-- ⏱️ **Custom Video Duration**: Control the length of the generated video by adjusting the number of frames.
-  
+- Generate videos based on textual descriptions.
+- Adjustable video duration (1 to 10 seconds).
+- User-friendly interface for ease of use.
+
 ## Requirements
+Ensure you have the following libraries installed in your environment:
 
-To run this project, you'll need the following Python libraries:
+- `torch`
+- `diffusers`
+- `gradio`
+- `imageio`
+- `matplotlib`
+- `IPython`
 
-- **`diffusers`**: For generating video frames using diffusion models.
-- **`transformers`**: For text processing and tokenization.
-- **`Pillow`**: For image manipulation and frame conversion.
-- **`imageio`**: For creating and exporting videos from generated frames.
-- **`numpy`**: For numerical operations on arrays (handling frames).
-- **`loguru`** (optional): For logging and debugging.
-- **`torch` or `tensorflow`**: For model inference (PyTorch preferred for Hugging Face models).
-
-## Setup Instructions
-
-### 1. Clone the Repository
-* Clone this repository to your local machine or Google Colab.
-
+You can install the required libraries using:
 ```bash
-git clone https://github.com/your-username/text-to-video-diffusers.git
-cd text-to-video-diffusers
-```
-### 2. Install Dependencies
-* Ensure that Python is installed, and then install the required libraries.
-
-```bash
-Copy code
-pip install -r requirements.txt
-```
-* This will install the necessary libraries to run the project.
-### 3. Generate Video from Text
-* Run the Python script to generate a video based on your text prompt.
-```bash
-from diffusers import StableDiffusionPipeline
-import numpy as np
-from PIL import Image
-import imageio
-```
-## Load the model
-```bash
-pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4")
+pip install torch diffusers gradio imageio matplotlib
 ```
 
-## Function to generate video from a text prompt
-```bash
-def generate_video(prompt, video_duration_seconds):
-    num_frames = video_duration_seconds * 10  # 10 frames per second
-    video_frames = pipe(prompt, num_inference_steps=25, num_frames=num_frames).frames
-    
-    # Convert frames to RGB format
-    video_frames_rgb = [Image.fromarray(frame).convert("RGB") for frame in video_frames]
-    
-    # Save frames as a video
-    video_path = "output_video.mp4"
-    with imageio.get_writer(video_path, fps=10) as writer:
-        for frame in video_frames_rgb:
-            writer.append_data(np.array(frame))
-    
-    return video_path
+## How to Use
+This project is designed for use in Google Colab or similar Jupyter-based environments. Follow the steps below to execute the code:
 
-## Example Usage
+### 1. Import Required Libraries
+Run the following code to import necessary libraries:
 ```python
-prompt = "A cat riding a skateboard"
-video_duration_seconds = 5
-video_path = generate_video(prompt, video_duration_seconds)
-print(f"Video saved to: {video_path}")
+import torch
+from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
+from diffusers.utils import export_to_video
+import gradio as gr
 ```
-### 4. Output
-* After running the script, the generated video will be saved to the file output_video.mp4 in your working directory.
 
-How It Works
-Text Input: The user provides a text prompt describing the desired video.
-Frame Generation: The model (based on Stable Diffusion or similar) generates individual frames for the video based on the prompt.
-Video Creation: The frames are combined into a video using imageio and exported as an .mp4 file.
-Exported Video: The final video is saved to the disk and can be played or shared.
-Example Prompts
-Here are a few example prompts you can try:
+### 2. Load the Diffusion Model
+Load the pre-trained diffusion model:
+```python
+pipe = DiffusionPipeline.from_pretrained(
+    "damo-vilab/text-to-video-ms-1.7b", torch_dtype=torch.float16, variant="fp16"
+)
+pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+pipe.enable_model_cpu_offload()
+pipe.enable_vae_slicing()
+```
 
-"A futuristic city at sunset"
-"A dog playing fetch in the park"
-"A spaceship flying through the stars"
-"A cat riding a skateboard"
-Troubleshooting
-If you encounter issues while generating the video, try the following:
+### 3. Define the Video Generation Function
+This function takes a text prompt and video duration as inputs, generates the video frames, and exports the video file:
+```python
+def generate_video(prompt, duration):
+    video_duration_seconds = duration
+    num_frames = video_duration_seconds * 10
+    video_frames = pipe(prompt, negative_prompt="low quality", num_inference_steps=25, num_frames=num_frames).frames
+    video_frames = video_frames.squeeze(0)  # Remove the batch dimension
+    video_path = export_to_video(video_frames)  # Export the video
+    return video_path
+```
 
-Check Model Load: Ensure that the model is properly loaded from Hugging Face.
-Check Video Duration: Make sure the video duration is within reasonable limits (e.g., don't request a video with too many frames).
-Error Messages: If an error occurs during frame generation, review the error message for clues (e.g., missing dependencies, model errors).
-Optional Improvements
-🛠️ Model Fine-Tuning: Fine-tune the diffusion model on custom datasets for more specific video content.
-🧑‍💻 Web Interface: Integrate the script with a web interface (e.g., Streamlit or Gradio) for easier use.
-🚀 Optimization: Implement optimizations to speed up frame generation and video creation (e.g., batch processing).
+### 4. Set Up the Gradio Interface
+Define the user interface with inputs for the text prompt and video duration, and an output area for the generated video:
+```python
+interface = gr.Interface(
+    fn=generate_video,  # The function to generate videos
+    inputs=[
+        gr.Textbox(label="Prompt", placeholder="Enter your text prompt here"),
+        gr.Slider(label="Video Duration (seconds)", minimum=1, maximum=10, step=1, value=3),
+    ],
+    outputs=gr.Video(label="Generated Video"),
+    title="Text-to-Video Diffusion Model",
+    description="Generate videos from text prompts using a diffusion model."
+)
+```
 
-## Contact
-* For any questions, feedback, or contributions, feel free to reach out:
+### 5. Launch the Gradio Interface
+Run the following code to start the Gradio interface:
+```python
+interface.launch()
+```
 
-**✉️ Email: your-email@example.com**
+### 6. Interact with the UI
+- Open the Gradio link generated in the last step.
+- Enter your text prompt (e.g., "A girl swinging in a swing in a blossom tree").
+- Adjust the video duration slider as needed.
+- Click "Submit" to generate and view the video.
 
-### Key Features of the `README.md`:
+## Notes
+- Ensure sufficient GPU resources are available when running the model.
+- Video generation time depends on the complexity of the prompt and the duration.
 
-1. **Project Overview**: Briefly describes the purpose and functionality of the project.
-2. **Requirements**: Lists all dependencies needed to run the project.
-3. **Setup Instructions**: Step-by-step guide on how to clone the repository and install dependencies.
-4. **Usage**: Provides an example of how to use the script to generate a video from a text prompt.
-5. **How It Works**: Explains the flow of generating video from text input to the final video output.
-6. **Example Prompts**: Suggests a few prompts that users can try out with the system.
-7. **Troubleshooting**: Provides common solutions for issues that may arise.
-8. **Optional Improvements**: Suggests ideas for expanding or enhancing the project.
-9. **License**: Information about the licensing of the project.
-10. **Contact**: Provides a way for users to reach out with questions or feedback.
+## Example Prompt
+```
+A serene sunset over a calm ocean with gentle waves.
+```
+Expected output: A short video depicting the described scene.
 
+## Acknowledgments
+- This project utilizes the [Diffusers library](https://huggingface.co/docs/diffusers/) for text-to-video generation.
+- Gradio is used for building the user interface.
 
-
-
+## License
+This project is for educational and non-commercial use only. Please refer to the respective libraries’ licenses for more details.
 
